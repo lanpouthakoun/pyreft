@@ -273,4 +273,281 @@ class ReftTrainerForSequenceClassification(ReftTrainer):
         self._memory_tracker.stop_and_update_metrics(metrics)
         
         return metrics
+
+
+class ReftTrainerForGRPO(ReftTrainer):
+    """
+    ReFT Trainer for Group Relative Policy Optimization (GRPO).
+    
+    GRPO is a reinforcement learning algorithm that computes advantages relative
+    to other samples in the same group (same prompt). This trainer implements
+    GRPO while using ReFT interventions as the policy's action space.
+    
+    Key features:
+    - Group-relative advantage estimation (no separate value network needed)
+    - Policy gradient loss with KL divergence penalty
+    - Support for external reward functions
+    - Only updates ReFT intervention parameters
+    
+    Args:
+        model: The ReFT model (IntervenableModel)
+        args: Training arguments
+        data_collator: Data collator for GRPO batches
+        train_dataset: Training dataset with prompts, responses, and rewards
+        tokenizer: Tokenizer for the model
+        beta: KL divergence penalty coefficient (default: 0.1)
+        group_size: Number of samples per prompt group (default: inferred from data)
+        epsilon: Small constant for numerical stability (default: 1e-8)
+    """
+    
+    def __init__(
+        self,
+        model=None,
+        args=None,
+        data_collator=None,
+        train_dataset=None,
+        eval_dataset=None,
+        tokenizer=None,
+        compute_metrics=None,
+        callbacks=None,
+        optimizers=(None, None),
+        preprocess_logits_for_metrics=None,
+        beta: float = 0.1,
+        group_size: Optional[int] = None,
+        epsilon: float = 1e-8,
+        **kwargs
+    ):
+        super().__init__(
+            model=model,
+            args=args,
+            data_collator=data_collator,
+            train_dataset=train_dataset,
+            eval_dataset=eval_dataset,
+            tokenizer=tokenizer,
+            compute_metrics=compute_metrics,
+            callbacks=callbacks,
+            optimizers=optimizers,
+            preprocess_logits_for_metrics=preprocess_logits_for_metrics,
+            **kwargs
+        )
+        self.beta = beta
+        self.group_size = group_size
+        self.epsilon = epsilon
+    
+    def get_train_dataloader(self) -> DataLoader:
+        """Create dataloader for GRPO training."""
+        return make_dataloader(
+            self.train_dataset, 
+            self._train_batch_size, 
+            self.data_collator, 
+            shuffle=True
+        )
+    
+    def _get_batch_logps(
+        self,
+        logits: torch.Tensor,
+        labels: torch.Tensor,
+        attention_mask: torch.Tensor,
+    ) -> torch.Tensor:
+        """
+        Compute log probabilities of the labels given the logits.
+        
+        Args:
+            logits: Model output logits [batch_size, seq_len, vocab_size]
+            labels: Target token ids [batch_size, seq_len]
+            attention_mask: Attention mask [batch_size, seq_len]
+            
+        Returns:
+            Log probabilities per sequence [batch_size]
+        """
+        labels = labels[:, 1:].clone()
+        logits = logits[:, :-1, :]
+        attention_mask = attention_mask[:, 1:].clone()
+        
+        # Replace padding tokens in labels with 0 to avoid index errors
+        loss_mask = (labels != -100) & (attention_mask == 1)
+        labels[labels == -100] = 0
+        
+        # Compute per-token log probabilities
+        per_token_logps = torch.gather(
+            logits.log_softmax(-1), 
+            dim=2, 
+            index=labels.unsqueeze(2)
+        ).squeeze(2)
+        
+        # Mask and sum to get sequence log probabilities
+        per_token_logps = per_token_logps * loss_mask
+        return per_token_logps.sum(-1)
+    
+    def _compute_group_advantages(
+        self,
+        rewards: torch.Tensor,
+        group_size: int
+    ) -> torch.Tensor:
+        """
+        Compute group-relative advantages.
+        
+        For each group of samples (same prompt), compute advantages as:
+        advantage = (reward - group_mean) / (group_std + epsilon)
+        
+        Args:
+            rewards: Reward values [batch_size]
+            group_size: Number of samples per group
+            
+        Returns:
+            Normalized advantages [batch_size]
+        """
+        batch_size = rewards.shape[0]
+        num_groups = batch_size // group_size
+        
+        # Reshape to [num_groups, group_size]
+        rewards_grouped = rewards.view(num_groups, group_size)
+        
+        # Compute group statistics
+        group_mean = rewards_grouped.mean(dim=1, keepdim=True)
+        group_std = rewards_grouped.std(dim=1, keepdim=True)
+        
+        # Normalize within groups
+        advantages = (rewards_grouped - group_mean) / (group_std + self.epsilon)
+        
+        # Flatten back to [batch_size]
+        return advantages.view(-1)
+    
+    def compute_loss(
+        self,
+        intervenable: pv.IntervenableModel,
+        inputs,
+        return_outputs=False
+    ):
+        """
+        Compute GRPO loss.
+        
+        The GRPO loss consists of:
+        1. Policy gradient loss: -log_prob * advantage
+        2. KL divergence penalty: beta * KL(policy || reference)
+        
+        Args:
+            intervenable: The ReFT model
+            inputs: Batch inputs containing:
+                - input_ids: Token ids [batch_size, seq_len]
+                - attention_mask: Attention mask [batch_size, seq_len]
+                - labels: Target labels [batch_size, seq_len]
+                - intervention_locations: Intervention positions
+                - rewards: Reward values [batch_size]
+                - group_ids: Group identifiers [batch_size] (optional)
+            return_outputs: Whether to return model outputs
+            
+        Returns:
+            Loss value (and optionally outputs)
+        """
+        # Get intervention locations
+        unit_locations = None
+        if "intervention_locations" in inputs:
+            if inputs["intervention_locations"].dim() == 3:
+                unit_locations = {"sources->base": (
+                    None,
+                    inputs["intervention_locations"].permute(1, 0, 2).tolist()
+                )}
+            else:
+                unit_locations = {"sources->base": (None, 0)}
+        
+        # Forward pass with interventions (policy)
+        _, cf_outputs = intervenable(
+            {
+                "input_ids": inputs["input_ids"],
+                "attention_mask": inputs["attention_mask"]
+            },
+            unit_locations=unit_locations,
+            subspaces=inputs["subspaces"].permute(1, 0, 2).tolist() if "subspaces" in inputs else None
+        )
+        
+        # Compute policy log probabilities
+        policy_logps = self._get_batch_logps(
+            cf_outputs.logits,
+            inputs["labels"],
+            inputs["attention_mask"]
+        )
+        
+        # Get rewards and compute advantages
+        rewards = inputs["rewards"].to(policy_logps.device)
+        
+        # Determine group size
+        if self.group_size is not None:
+            group_size = self.group_size
+        elif "group_ids" in inputs:
+            # Infer group size from group_ids
+            unique_groups = inputs["group_ids"].unique()
+            group_size = inputs["input_ids"].shape[0] // len(unique_groups)
+        else:
+            # Default: treat entire batch as one group
+            group_size = inputs["input_ids"].shape[0]
+        
+        # Compute group-relative advantages
+        advantages = self._compute_group_advantages(rewards, group_size)
+        
+        # Policy gradient loss: -log_prob * advantage
+        pg_loss = -(policy_logps * advantages).mean()
+        
+        # KL divergence penalty (against reference/base model)
+        # Compute reference log probabilities (without interventions)
+        with torch.no_grad():
+            base_outputs = intervenable.model(
+                input_ids=inputs["input_ids"],
+                attention_mask=inputs["attention_mask"]
+            )
+            ref_logps = self._get_batch_logps(
+                base_outputs.logits,
+                inputs["labels"],
+                inputs["attention_mask"]
+            )
+        
+        # KL divergence: policy_logp - ref_logp (approximation)
+        kl_div = (policy_logps - ref_logps).mean()
+        
+        # Total loss
+        loss = pg_loss + self.beta * kl_div
+        
+        if return_outputs:
+            return loss, {
+                "cf_outputs": cf_outputs,
+                "policy_logps": policy_logps,
+                "ref_logps": ref_logps,
+                "advantages": advantages,
+                "pg_loss": pg_loss,
+                "kl_div": kl_div,
+            }
+        return loss
+    
+    def prediction_step(
+        self,
+        model: pv.IntervenableModel,
+        inputs,
+        prediction_loss_only: bool,
+        ignore_keys=None,
+    ):
+        """
+        Perform a prediction step for evaluation.
+        
+        Args:
+            model: The ReFT model
+            inputs: Batch inputs
+            prediction_loss_only: Whether to only return loss
+            ignore_keys: Keys to ignore in outputs
+            
+        Returns:
+            Tuple of (loss, logits, labels)
+        """
+        with torch.no_grad():
+            loss, outputs = self.compute_loss(model, inputs, return_outputs=True)
+        
+        loss = loss.detach().cpu()
+        
+        if prediction_loss_only:
+            return (loss, None, None)
+        
+        # Return policy log probs as logits for metrics computation
+        logits = outputs["policy_logps"].detach().cpu()
+        labels = inputs["rewards"].detach().cpu()
+        
+        return (loss, logits, labels)
         
