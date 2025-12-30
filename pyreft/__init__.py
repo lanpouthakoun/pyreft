@@ -12,7 +12,8 @@ from .reft_trainer import (
     ReftTrainer,
     ReftTrainerForCausalLM,
     ReftTrainerForCausalLMDistributed,
-    ReftTrainerForSequenceClassification
+    ReftTrainerForSequenceClassification,
+    ReftTrainerForGRPO
 )
 
 # interventions
@@ -35,8 +36,11 @@ from .dataset import (
     ReftPreferenceDataset,
     ReftRewardDataset,
     ReftRewardCollator,
+    ReftGRPODataset,
+    ReftGRPOCollator,
     make_last_position_supervised_data_module,
     make_multiple_position_supervised_data_module,
+    make_grpo_data_module,
     get_intervention_locations,
     parse_positions
 )

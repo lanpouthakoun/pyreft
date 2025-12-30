@@ -799,3 +799,261 @@ class ReftRewardCollator:
         max_seq_length = batch["input_ids"].shape[-1]
         batch["intervention_locations"] = batch["intervention_locations"][..., :max_seq_length]
         return batch
+
+
+class ReftGRPODataset(ReftDataset):
+    """
+    Dataset for GRPO (Group Relative Policy Optimization) training with ReFT.
+    
+    This dataset handles RL trajectories with prompts, responses, and rewards.
+    Each sample contains:
+    - prompt: The input prompt
+    - response: The generated response
+    - reward: The reward value for this response
+    - group_id: Identifier for grouping samples from the same prompt
+    
+    The dataset computes intervention locations based on the prompt length,
+    allowing ReFT to intervene at specific token positions.
+    
+    Args:
+        task: Task name or identifier
+        data_path: Path to the data file
+        tokenizer: Tokenizer for the model
+        data_split: Data split to use (train/val/test)
+        dataset: Pre-loaded dataset (optional)
+        seed: Random seed
+        max_n_example: Maximum number of examples to use
+        prompt_field: Field name for prompts (default: "prompt")
+        response_field: Field name for responses (default: "response")
+        reward_field: Field name for rewards (default: "reward")
+        group_id_field: Field name for group IDs (default: "group_id")
+        **kwargs: Additional arguments including position, num_interventions, etc.
+    """
+
+    def preprocess(self, kwargs):
+        self.prompt_field = kwargs.get("prompt_field", "prompt")
+        self.response_field = kwargs.get("response_field", "response")
+        self.reward_field = kwargs.get("reward_field", "reward")
+        self.group_id_field = kwargs.get("group_id_field", "group_id")
+        self.fields_to_pad = ["input_ids", "labels"]
+        self.fields_to_mask = ["input_ids"]
+
+    def tokenize(self, data_item):
+        result = {}
+
+        # Get prompt and response
+        prompt = data_item[self.prompt_field]
+        response = data_item[self.response_field]
+        
+        # Tokenize prompt to get intervention position
+        prompt_ids = self.tokenizer(
+            prompt, max_length=self.tokenizer.model_max_length,
+            truncation=True, return_tensors="pt")["input_ids"][0]
+        base_prompt_length = len(prompt_ids)
+        last_position = base_prompt_length - 1
+        
+        # Tokenize full input (prompt + response)
+        full_input = prompt + response + self.tokenizer.eos_token
+        input_ids = self.tokenizer(
+            full_input, max_length=self.tokenizer.model_max_length,
+            truncation=True, return_tensors="pt")["input_ids"][0]
+        result["input_ids"] = input_ids
+        
+        # Create labels (mask prompt tokens)
+        labels = input_ids.clone()
+        labels[:base_prompt_length] = IGNORE_INDEX
+        result["labels"] = labels
+        
+        # Store reward
+        if self.reward_field in data_item:
+            result["reward"] = data_item[self.reward_field]
+        else:
+            result["reward"] = 0.0
+            
+        # Store group_id if available
+        if self.group_id_field in data_item:
+            result["group_id"] = data_item[self.group_id_field]
+        
+        return result, last_position
+
+
+@dataclass
+class ReftGRPOCollator:
+    """
+    Data collator for GRPO training with ReFT.
+    
+    This collator handles batching of GRPO samples, including:
+    - Padding input_ids and labels to the same length
+    - Handling intervention_locations
+    - Batching rewards and group_ids
+    
+    Args:
+        tokenizer: Tokenizer for padding
+        padding: Padding strategy (True, "longest", "max_length")
+        max_length: Maximum sequence length
+        pad_to_multiple_of: Pad to multiple of this value
+        return_tensors: Return tensor type ("pt" for PyTorch)
+    """
+    tokenizer: transformers.PreTrainedTokenizer
+    padding: Union[bool, str] = True
+    max_length: Optional[int] = None
+    pad_to_multiple_of: Optional[int] = None
+    return_tensors: str = "pt"
+
+    def __call__(self, features: List[Dict[str, Any]]) -> Dict[str, Any]:
+        # Separate features for padding
+        input_features = []
+        rewards = []
+        group_ids = []
+        intervention_locations = []
+        
+        for feature in features:
+            input_features.append({
+                "input_ids": feature["input_ids"],
+                "attention_mask": feature.get("attention_mask", 
+                    torch.ones_like(feature["input_ids"]) if isinstance(feature["input_ids"], torch.Tensor)
+                    else [1] * len(feature["input_ids"])),
+                "labels": feature.get("labels", feature["input_ids"]),
+            })
+            rewards.append(feature.get("reward", 0.0))
+            if "group_id" in feature:
+                group_ids.append(feature["group_id"])
+            if "intervention_locations" in feature:
+                intervention_locations.append(feature["intervention_locations"])
+        
+        # Pad input features
+        batch = self.tokenizer.pad(
+            input_features,
+            padding=self.padding,
+            max_length=self.max_length,
+            pad_to_multiple_of=self.pad_to_multiple_of,
+            return_tensors=self.return_tensors,
+        )
+        
+        # Add rewards
+        batch["rewards"] = torch.tensor(rewards, dtype=torch.float32)
+        
+        # Add group_ids if available
+        if group_ids:
+            batch["group_ids"] = torch.tensor(group_ids, dtype=torch.long)
+        
+        # Handle intervention_locations
+        if intervention_locations:
+            # Convert to tensor and handle padding
+            max_seq_length = batch["input_ids"].shape[-1]
+            
+            # Stack intervention locations
+            if isinstance(intervention_locations[0], list):
+                # intervention_locations is a list of lists
+                intervention_locations_tensor = torch.tensor(intervention_locations)
+            else:
+                intervention_locations_tensor = torch.stack(intervention_locations)
+            
+            # Truncate to max sequence length
+            batch["intervention_locations"] = intervention_locations_tensor[..., :max_seq_length]
+        
+        return batch
+
+
+def make_grpo_data_module(
+    tokenizer: transformers.PreTrainedTokenizer,
+    model,
+    prompts: List[str],
+    responses: List[str],
+    rewards: List[float],
+    group_ids: Optional[List[int]] = None,
+    positions: str = "f1+l1",
+    num_interventions: int = 1,
+    share_weights: bool = False,
+    max_length: Optional[int] = None,
+) -> Dict:
+    """
+    Create a data module for GRPO training with ReFT.
+    
+    This function creates a dataset and collator for GRPO training,
+    similar to make_multiple_position_supervised_data_module but
+    designed for RL trajectories with rewards.
+    
+    Args:
+        tokenizer: Tokenizer for the model
+        model: The model (used for data collator configuration)
+        prompts: List of prompt strings
+        responses: List of response strings (one per prompt-response pair)
+        rewards: List of reward values (one per prompt-response pair)
+        group_ids: Optional list of group identifiers (samples with same group_id
+                   are from the same prompt). If None, each sample is its own group.
+        positions: Position string for interventions (e.g., "f1+l1")
+        num_interventions: Number of intervention layers
+        share_weights: Whether to share weights across interventions
+        max_length: Maximum sequence length for padding
+        
+    Returns:
+        Dictionary with train_dataset, eval_dataset, and data_collator
+    """
+    first_n, last_n = parse_positions(positions)
+    
+    all_input_ids = []
+    all_labels = []
+    all_intervention_locations = []
+    all_rewards = []
+    all_group_ids = []
+    
+    for i in range(len(prompts)):
+        prompt = prompts[i]
+        response = responses[i]
+        reward = rewards[i]
+        group_id = group_ids[i] if group_ids is not None else i
+        
+        # Tokenize prompt
+        prompt_ids = tokenizer(
+            prompt, max_length=tokenizer.model_max_length,
+            truncation=True, return_tensors="pt")["input_ids"][0]
+        base_prompt_length = len(prompt_ids)
+        
+        # Tokenize full input
+        full_input = prompt + response + tokenizer.eos_token
+        input_ids = tokenizer(
+            full_input, max_length=tokenizer.model_max_length,
+            truncation=True, return_tensors="pt")["input_ids"][0]
+        
+        # Create labels (mask prompt)
+        labels = input_ids.clone()
+        labels[:base_prompt_length] = IGNORE_INDEX
+        
+        # Get intervention locations
+        intervention_locations = get_intervention_locations(
+            last_position=base_prompt_length,
+            first_n=first_n,
+            last_n=last_n,
+            pad_mode="last",
+            num_interventions=num_interventions,
+            share_weights=share_weights,
+        )
+        
+        all_input_ids.append(input_ids)
+        all_labels.append(labels)
+        all_intervention_locations.append(intervention_locations)
+        all_rewards.append(reward)
+        all_group_ids.append(group_id)
+    
+    # Create dataset
+    train_dataset = datasets.Dataset.from_dict({
+        "input_ids": all_input_ids,
+        "labels": all_labels,
+        "intervention_locations": all_intervention_locations,
+        "reward": all_rewards,
+        "group_id": all_group_ids,
+    })
+    
+    # Create collator
+    data_collator = ReftGRPOCollator(
+        tokenizer=tokenizer,
+        padding=True,
+        max_length=max_length or tokenizer.model_max_length,
+    )
+    
+    return dict(
+        train_dataset=train_dataset,
+        eval_dataset=None,
+        data_collator=data_collator
+    )
