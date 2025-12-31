@@ -1,3 +1,31 @@
+"""Dataset utilities for Representation Fine-Tuning (ReFT) models.
+
+This module provides dataset classes and utilities for preparing training data
+for ReFT models. It includes various dataset types for different tasks:
+supervised fine-tuning, classification, generation, preference learning, and
+reward modeling.
+
+The module also provides helper functions for computing intervention locations
+and creating data modules for common training scenarios.
+
+Classes:
+    ReftDataCollator: Data collator that handles intervention locations.
+    ReftDataset: Abstract base class for ReFT datasets.
+    ReftRawDataset: Simple dataset for raw instruction-output pairs.
+    ReftClassificationDataset: Dataset for classification tasks.
+    ReftGenerationDataset: Dataset for generation tasks.
+    ReftSupervisedDataset: Dataset for Alpaca-style supervised fine-tuning.
+    ReftPreferenceDataset: Dataset for preference learning (DPO-style).
+    ReftRewardDataset: Dataset for reward modeling.
+    ReftRewardCollator: Data collator for reward modeling.
+
+Functions:
+    parse_positions: Parse position strings like "f3+l3".
+    get_intervention_locations: Compute intervention locations for a sequence.
+    make_last_position_supervised_data_module: Create data module for last-position interventions.
+    make_multiple_position_supervised_data_module: Create data module for multi-position interventions.
+"""
+
 IGNORE_INDEX = -100
 
 no_header_prompt_template = """\
@@ -50,8 +78,30 @@ from collections import defaultdict
 from transformers import DataCollator
 
 
-def parse_positions(positions: str):
-    # parse position
+def parse_positions(positions: str) -> tuple:
+    """Parse a position string into first_n and last_n token counts.
+
+    Position strings specify which tokens in a sequence should receive
+    interventions. The format supports:
+        - "fN": First N tokens (e.g., "f3" = first 3 tokens)
+        - "lN": Last N tokens (e.g., "l3" = last 3 tokens)
+        - "fN+lM": Both first N and last M tokens (e.g., "f3+l3")
+
+    Args:
+        positions: A position string in the format "fN", "lN", or "fN+lM".
+
+    Returns:
+        A tuple of (first_n, last_n) where first_n is the number of tokens
+        from the start and last_n is the number of tokens from the end.
+
+    Example:
+        >>> parse_positions("f3+l3")
+        (3, 3)
+        >>> parse_positions("f7")
+        (7, 0)
+        >>> parse_positions("l5")
+        (0, 5)
+    """
     first_n, last_n = 0, 0
     if "+" in positions:
         first_n = int(positions.split("+")[0].strip("f"))
@@ -64,11 +114,37 @@ def parse_positions(positions: str):
     return first_n, last_n
 
 
-def get_intervention_locations(**kwargs):
-    """
-    This function generates the intervention locations.
+def get_intervention_locations(**kwargs: Any) -> List[List[int]]:
+    """Generate intervention locations for a sequence.
 
-    For your customized dataset, you want to create your own function.
+    This function computes which token positions should receive interventions
+    based on the specified first_n and last_n parameters. It handles padding
+    for sequences shorter than the requested intervention positions.
+
+    For custom datasets, you may want to create your own function that
+    computes intervention locations based on your specific requirements.
+
+    Args:
+        **kwargs: Keyword arguments including:
+            - last_position (int): The length of the sequence (required).
+            - positions (str): Position string like "f3+l3" (optional).
+            - first_n (int): Number of first tokens (if positions not provided).
+            - last_n (int): Number of last tokens (if positions not provided).
+            - num_interventions (int): Number of intervention layers (required).
+            - share_weights (bool): Whether interventions share weights. Defaults to False.
+            - pad_mode (str): Padding mode, "first" or "last". Defaults to "first".
+
+    Returns:
+        A list of lists, where each inner list contains the token positions
+        for one intervention layer. Shape: [num_interventions, num_positions].
+
+    Example:
+        >>> locations = get_intervention_locations(
+        ...     last_position=100,
+        ...     positions="f3+l3",
+        ...     num_interventions=2,
+        ...     share_weights=True
+        ... )
     """
     # parse kwargs
     share_weights = kwargs["share_weights"] if "share_weights" in kwargs else False
@@ -123,14 +199,58 @@ class ReftDataCollator(object):
 
 
 class ReftDataset(Dataset):
+    """Abstract base class for ReFT datasets.
+
+    ReftDataset provides a common interface for preparing training data for ReFT
+    models. Subclasses must implement the tokenize() method to handle task-specific
+    tokenization logic.
+
+    The dataset handles:
+        - Loading data from HuggingFace datasets or local files
+        - Tokenization with the provided tokenizer
+        - Computing intervention locations based on position specifications
+        - Adding padding tokens and attention masks
+        - Computing subspaces for compositional interventions
+
+    Args:
+        task: The task name (used for loading from HuggingFace datasets).
+        data_path: Path to the data file or HuggingFace dataset config.
+        tokenizer: The tokenizer to use for encoding text.
+        data_split: Which split to load ("train", "validation", "test").
+        dataset: Optional pre-loaded dataset to use instead of loading.
+        seed: Random seed for shuffling when max_n_example is set.
+        max_n_example: Maximum number of examples to use (for debugging).
+        **kwargs: Additional arguments including:
+            - position (str): Position string like "f3+l3" for interventions.
+            - num_interventions (int): Number of intervention layers.
+            - share_weights (bool): Whether interventions share weights.
+
+    Attributes:
+        tokenizer: The tokenizer instance.
+        first_n: Number of first tokens to intervene on.
+        last_n: Number of last tokens to intervene on.
+        task_dataset: The loaded dataset.
+        result: List of processed examples.
+
+    Example:
+        Subclass implementation::
+
+            class MyDataset(ReftDataset):
+                def tokenize(self, data_item):
+                    # Custom tokenization logic
+                    result = {"input_ids": ..., "labels": ...}
+                    return result, last_position
+    """
+
     __metaclass__ = abc.ABCMeta
 
     def __init__(
         self, task: str, data_path: str,
         tokenizer: transformers.PreTrainedTokenizer,
-        data_split="train", dataset=None, seed=42, max_n_example=None,
-        **kwargs,
-    ):
+        data_split: str = "train", dataset: Optional[Any] = None, 
+        seed: int = 42, max_n_example: Optional[int] = None,
+        **kwargs: Any,
+    ) -> None:
         super(ReftDataset, self).__init__()
         result = defaultdict(list)
 
@@ -535,10 +655,43 @@ def make_last_position_supervised_chat_data_module(
 
 
 def make_last_position_supervised_data_module(
-    tokenizer: transformers.PreTrainedTokenizer, model, inputs, outputs, 
-    num_interventions=1, nonstop=False
-) -> Dict:
-    """Make dataset and collator for supervised fine-tuning."""
+    tokenizer: transformers.PreTrainedTokenizer, model: Any, inputs: List[str], 
+    outputs: List[str], num_interventions: int = 1, nonstop: bool = False
+) -> Dict[str, Any]:
+    """Create a data module for supervised fine-tuning with last-position interventions.
+
+    This is the most commonly used function for creating training data for ReFT.
+    It prepares a dataset where interventions are applied at the last token position
+    of each prompt, which is effective for instruction-following and chat tasks.
+
+    Args:
+        tokenizer: The tokenizer to use for encoding text.
+        model: The model (used for the data collator).
+        inputs: List of input prompts (instructions).
+        outputs: List of expected outputs (responses).
+        num_interventions: Number of intervention layers. Defaults to 1.
+        nonstop: If True, don't append EOS token to outputs. Defaults to False.
+
+    Returns:
+        A dictionary containing:
+            - train_dataset: The prepared training dataset.
+            - eval_dataset: None (not created by this function).
+            - data_collator: A ReftDataCollator for batching.
+
+    Example:
+        >>> data_module = make_last_position_supervised_data_module(
+        ...     tokenizer=tokenizer,
+        ...     model=model,
+        ...     inputs=["What is 2+2?", "Who are you?"],
+        ...     outputs=["4", "I am an AI assistant."]
+        ... )
+        >>> trainer = ReftTrainerForCausalLM(
+        ...     model=reft_model,
+        ...     tokenizer=tokenizer,
+        ...     args=training_args,
+        ...     **data_module
+        ... )
+    """
 
     all_base_input_ids, all_intervention_locations, all_output_ids = [], [], []
     for i in range(len(inputs)):
@@ -580,10 +733,45 @@ def make_last_position_supervised_data_module(
 
 
 def make_multiple_position_supervised_data_module(
-    tokenizer: transformers.PreTrainedTokenizer, model, inputs, outputs, 
-    positions="f1+l1", num_interventions=1, nonstop=False, share_weights=False
-) -> Dict:
-    """Make dataset and collator for supervised fine-tuning."""
+    tokenizer: transformers.PreTrainedTokenizer, model: Any, inputs: List[str], 
+    outputs: List[str], positions: str = "f1+l1", num_interventions: int = 1, 
+    nonstop: bool = False, share_weights: bool = False
+) -> Dict[str, Any]:
+    """Create a data module for supervised fine-tuning with multi-position interventions.
+
+    This function is similar to make_last_position_supervised_data_module but allows
+    interventions at multiple token positions (both first and last tokens of the prompt).
+    This can be useful for tasks that benefit from intervening on both the beginning
+    and end of the input sequence.
+
+    Args:
+        tokenizer: The tokenizer to use for encoding text.
+        model: The model (used for the data collator).
+        inputs: List of input prompts (instructions).
+        outputs: List of expected outputs (responses).
+        positions: Position string specifying intervention locations (e.g., "f3+l3").
+            Defaults to "f1+l1" (first and last token).
+        num_interventions: Number of intervention layers. Defaults to 1.
+        nonstop: If True, don't append EOS token to outputs. Defaults to False.
+        share_weights: Whether interventions at different positions share weights.
+            Defaults to False.
+
+    Returns:
+        A dictionary containing:
+            - train_dataset: The prepared training dataset.
+            - eval_dataset: None (not created by this function).
+            - data_collator: A ReftDataCollator for batching.
+
+    Example:
+        >>> data_module = make_multiple_position_supervised_data_module(
+        ...     tokenizer=tokenizer,
+        ...     model=model,
+        ...     inputs=["What is 2+2?"],
+        ...     outputs=["4"],
+        ...     positions="f3+l3",
+        ...     num_interventions=2
+        ... )
+    """
     first_n, last_n = parse_positions(positions)
     
     all_base_input_ids, all_intervention_locations, all_output_ids = [], [], []
