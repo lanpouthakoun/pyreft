@@ -1,0 +1,202 @@
+{
+  "experiment_config": {
+    "num_queries": 50,
+    "num_documents": 5000,
+    "first_stage_k_values": [
+      20,
+      50,
+      100,
+      200
+    ]
+  },
+  "results": {
+    "bm25_only": {
+      "mrr": 0.95,
+      "ndcg@10": 0.9540994517778898,
+      "recall@10": 0.018000000000000002,
+      "avg_retrieval_time_ms": 5.939039419999972,
+      "avg_reranking_time_ms": 0.0,
+      "total_queries": 50
+    },
+    "dense_only": {
+      "mrr": 1.0,
+      "ndcg@10": 1.0,
+      "recall@10": 0.02,
+      "avg_retrieval_time_ms": 75.5352578600025,
+      "avg_reranking_time_ms": 0.0,
+      "total_queries": 50
+    },
+    "bm25_with_reranking": {
+      "k=20": {
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 0.02,
+        "avg_retrieval_time_ms": 7.227322460003052,
+        "avg_reranking_time_ms": 50.15459529999475,
+        "total_queries": 50
+      },
+      "k=50": {
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 0.02,
+        "avg_retrieval_time_ms": 7.247803019999992,
+        "avg_reranking_time_ms": 124.27599905999956,
+        "total_queries": 50
+      },
+      "k=100": {
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 0.02,
+        "avg_retrieval_time_ms": 7.379486799999313,
+        "avg_reranking_time_ms": 246.8579044799992,
+        "total_queries": 50
+      },
+      "k=200": {
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 0.02,
+        "avg_retrieval_time_ms": 7.353815760000089,
+        "avg_reranking_time_ms": 481.94708090000057,
+        "total_queries": 50
+      }
+    },
+    "dense_with_reranking": {
+      "k=20": {
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 0.02,
+        "avg_retrieval_time_ms": 15.09963006000362,
+        "avg_reranking_time_ms": 148.8415494200035,
+        "total_queries": 50
+      },
+      "k=50": {
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 0.02,
+        "avg_retrieval_time_ms": 17.38303947999384,
+        "avg_reranking_time_ms": 236.8925169600027,
+        "total_queries": 50
+      },
+      "k=100": {
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 0.02,
+        "avg_retrieval_time_ms": 16.687064979998922,
+        "avg_reranking_time_ms": 338.7904558399987,
+        "total_queries": 50
+      },
+      "k=200": {
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 0.02,
+        "avg_retrieval_time_ms": 17.63084919999642,
+        "avg_reranking_time_ms": 576.3514473000009,
+        "total_queries": 50
+      }
+    }
+  },
+  "latency_analysis": {
+    "bm25_baseline": {
+      "latency_ms": 5.939039419999972,
+      "mrr": 0.95,
+      "ndcg@10": 0.9540994517778898
+    },
+    "dense_baseline": {
+      "latency_ms": 75.5352578600025,
+      "mrr": 1.0,
+      "ndcg@10": 1.0
+    },
+    "reranking_overhead": {
+      "bm25_k=20": {
+        "total_latency_ms": 57.381917759997805,
+        "reranking_overhead_ms": 51.44287833999783,
+        "overhead_percentage": 866.1817964494683
+      },
+      "bm25_k=50": {
+        "total_latency_ms": 131.52380207999954,
+        "reranking_overhead_ms": 125.58476265999957,
+        "overhead_percentage": 2114.5635477193073
+      },
+      "bm25_k=100": {
+        "total_latency_ms": 254.23739127999852,
+        "reranking_overhead_ms": 248.29835185999855,
+        "overhead_percentage": 4180.783023999523
+      },
+      "bm25_k=200": {
+        "total_latency_ms": 489.30089666000066,
+        "reranking_overhead_ms": 483.3618572400007,
+        "overhead_percentage": 8138.721147602738
+      },
+      "dense_k=20": {
+        "total_latency_ms": 163.94117948000712,
+        "reranking_overhead_ms": 88.40592162000462,
+        "overhead_percentage": 117.03927956909432
+      },
+      "dense_k=50": {
+        "total_latency_ms": 254.27555643999654,
+        "reranking_overhead_ms": 178.74029857999403,
+        "overhead_percentage": 236.63161236739586
+      },
+      "dense_k=100": {
+        "total_latency_ms": 355.4775208199976,
+        "reranking_overhead_ms": 279.9422629599951,
+        "overhead_percentage": 370.6113818779063
+      },
+      "dense_k=200": {
+        "total_latency_ms": 593.9822964999973,
+        "reranking_overhead_ms": 518.4470386399948,
+        "overhead_percentage": 686.364293084016
+      }
+    },
+    "accuracy_improvements": {
+      "bm25_k=20": {
+        "mrr_improvement": 0.050000000000000044,
+        "ndcg_improvement": 0.045900548222110205,
+        "mrr_improvement_percentage": 5.263157894736848
+      },
+      "bm25_k=50": {
+        "mrr_improvement": 0.050000000000000044,
+        "ndcg_improvement": 0.045900548222110205,
+        "mrr_improvement_percentage": 5.263157894736848
+      },
+      "bm25_k=100": {
+        "mrr_improvement": 0.050000000000000044,
+        "ndcg_improvement": 0.045900548222110205,
+        "mrr_improvement_percentage": 5.263157894736848
+      },
+      "bm25_k=200": {
+        "mrr_improvement": 0.050000000000000044,
+        "ndcg_improvement": 0.045900548222110205,
+        "mrr_improvement_percentage": 5.263157894736848
+      },
+      "dense_k=20": {
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0,
+        "mrr_improvement_percentage": 0.0
+      },
+      "dense_k=50": {
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0,
+        "mrr_improvement_percentage": 0.0
+      },
+      "dense_k=100": {
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0,
+        "mrr_improvement_percentage": 0.0
+      },
+      "dense_k=200": {
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0,
+        "mrr_improvement_percentage": 0.0
+      }
+    }
+  },
+  "recommendations": {
+    "best_accuracy_config": "dense_only",
+    "best_mrr": "1.0000",
+    "best_efficiency_config": "bm25_k=20",
+    "efficiency_explanation": "Best MRR improvement per millisecond of latency overhead",
+    "optimal_candidates_to_rerank": "20",
+    "optimal_k_explanation": "Beyond k=20, diminishing returns on accuracy improvement"
+  }
+}
