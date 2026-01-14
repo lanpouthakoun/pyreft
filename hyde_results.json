@@ -1,0 +1,928 @@
+{
+  "hyde": {
+    "metrics": {
+      "MRR": 0.85,
+      "NDCG@10": 0.8874498223911198,
+      "Recall@10": 1.0,
+      "Recall@100": 1.0,
+      "num_queries": 20
+    },
+    "latency": {
+      "avg_generation_time_ms": 952.494478225708,
+      "avg_embedding_time_ms": 8.860361576080322,
+      "avg_search_time_ms": 0.06695985794067383,
+      "total_avg_latency_ms": 961.421799659729
+    },
+    "per_query_results": [
+      {
+        "query_id": "q_0",
+        "query": "plants energy sun",
+        "hypothetical_doc": "Plants use sunlight to grow.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 597.02467918396,
+        "top_10_retrieved": [
+          "doc_0",
+          "doc_3",
+          "doc_1",
+          "doc_19",
+          "doc_2",
+          "doc_13",
+          "doc_11",
+          "doc_9",
+          "doc_5",
+          "doc_7"
+        ]
+      },
+      {
+        "query_id": "q_1",
+        "query": "cell energy production",
+        "hypothetical_doc": "Cells are the source of energy for the body.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 762.7701759338379,
+        "top_10_retrieved": [
+          "doc_1",
+          "doc_0",
+          "doc_13",
+          "doc_14",
+          "doc_3",
+          "doc_9",
+          "doc_18",
+          "doc_16",
+          "doc_5",
+          "doc_11"
+        ]
+      },
+      {
+        "query_id": "q_2",
+        "query": "global warming causes",
+        "hypothetical_doc": "Global warming is the result of global warming.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 634.8021030426025,
+        "top_10_retrieved": [
+          "doc_2",
+          "doc_3",
+          "doc_18",
+          "doc_19",
+          "doc_0",
+          "doc_12",
+          "doc_4",
+          "doc_9",
+          "doc_1",
+          "doc_14"
+        ]
+      },
+      {
+        "query_id": "q_3",
+        "query": "how does Earth stay warm",
+        "hypothetical_doc": "Earth is a warm, icy body that is a little warmer than the atmosphere.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 1346.459150314331,
+        "top_10_retrieved": [
+          "doc_3",
+          "doc_2",
+          "doc_18",
+          "doc_19",
+          "doc_0",
+          "doc_11",
+          "doc_10",
+          "doc_9",
+          "doc_14",
+          "doc_17"
+        ]
+      },
+      {
+        "query_id": "q_4",
+        "query": "quantum vs classical computing",
+        "hypothetical_doc": "Quantum computing is a process that uses a quantum wave to measure the speed of a light bulb.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 1478.0864715576172,
+        "top_10_retrieved": [
+          "doc_4",
+          "doc_5",
+          "doc_15",
+          "doc_0",
+          "doc_16",
+          "doc_19",
+          "doc_17",
+          "doc_3",
+          "doc_11",
+          "doc_13"
+        ]
+      },
+      {
+        "query_id": "q_5",
+        "query": "new type of computer",
+        "hypothetical_doc": "The first computer was a computer that was designed for the use of a computer.",
+        "mrr": 0.5,
+        "ndcg@10": 0.6309297535714575,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 1132.9491138458252,
+        "top_10_retrieved": [
+          "doc_5",
+          "doc_4",
+          "doc_15",
+          "doc_7",
+          "doc_6",
+          "doc_16",
+          "doc_1",
+          "doc_9",
+          "doc_8",
+          "doc_3"
+        ]
+      },
+      {
+        "query_id": "q_6",
+        "query": "European cultural rebirth",
+        "hypothetical_doc": "European cultural rebirth began in the late 19th century.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 851.8588542938232,
+        "top_10_retrieved": [
+          "doc_6",
+          "doc_7",
+          "doc_1",
+          "doc_2",
+          "doc_15",
+          "doc_13",
+          "doc_18",
+          "doc_0",
+          "doc_19",
+          "doc_17"
+        ]
+      },
+      {
+        "query_id": "q_7",
+        "query": "factory machines history",
+        "hypothetical_doc": "The history of factory machines is a long one.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 719.7389602661133,
+        "top_10_retrieved": [
+          "doc_7",
+          "doc_5",
+          "doc_1",
+          "doc_15",
+          "doc_4",
+          "doc_16",
+          "doc_13",
+          "doc_6",
+          "doc_12",
+          "doc_9"
+        ]
+      },
+      {
+        "query_id": "q_8",
+        "query": "bacteria medicine",
+        "hypothetical_doc": "Bacteria is a disease that causes a rash. Bacteria is a disease that causes a rash.",
+        "mrr": 0.5,
+        "ndcg@10": 0.6309297535714575,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 1699.2931365966797,
+        "top_10_retrieved": [
+          "doc_14",
+          "doc_8",
+          "doc_15",
+          "doc_9",
+          "doc_18",
+          "doc_6",
+          "doc_17",
+          "doc_3",
+          "doc_11",
+          "doc_2"
+        ]
+      },
+      {
+        "query_id": "q_9",
+        "query": "disease prevention injection",
+        "hypothetical_doc": "Injections are used to prevent disease.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 631.2127113342285,
+        "top_10_retrieved": [
+          "doc_9",
+          "doc_8",
+          "doc_12",
+          "doc_14",
+          "doc_4",
+          "doc_15",
+          "doc_13",
+          "doc_10",
+          "doc_16",
+          "doc_3"
+        ]
+      },
+      {
+        "query_id": "q_10",
+        "query": "space gravity escape",
+        "hypothetical_doc": "Space gravity is the force of gravity that causes the Earth to move in a forward motion.",
+        "mrr": 0.16666666666666666,
+        "ndcg@10": 0.3562071871080222,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 1196.9516277313232,
+        "top_10_retrieved": [
+          "doc_17",
+          "doc_18",
+          "doc_11",
+          "doc_3",
+          "doc_19",
+          "doc_10",
+          "doc_15",
+          "doc_6",
+          "doc_14",
+          "doc_0"
+        ]
+      },
+      {
+        "query_id": "q_11",
+        "query": "invisible universe matter",
+        "hypothetical_doc": "The invisible universe is the universe that is invisible to the human eye.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 907.5534343719482,
+        "top_10_retrieved": [
+          "doc_11",
+          "doc_10",
+          "doc_17",
+          "doc_15",
+          "doc_14",
+          "doc_4",
+          "doc_6",
+          "doc_3",
+          "doc_12",
+          "doc_13"
+        ]
+      },
+      {
+        "query_id": "q_12",
+        "query": "DNA editing tool",
+        "hypothetical_doc": "DNA editing tools are used to edit DNA.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 602.210521697998,
+        "top_10_retrieved": [
+          "doc_12",
+          "doc_1",
+          "doc_8",
+          "doc_13",
+          "doc_9",
+          "doc_0",
+          "doc_15",
+          "doc_2",
+          "doc_5",
+          "doc_14"
+        ]
+      },
+      {
+        "query_id": "q_13",
+        "query": "cells that can become anything",
+        "hypothetical_doc": "Cells that can become anything can be a form of energy.",
+        "mrr": 0.3333333333333333,
+        "ndcg@10": 0.5,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 892.5337791442871,
+        "top_10_retrieved": [
+          "doc_1",
+          "doc_0",
+          "doc_13",
+          "doc_3",
+          "doc_5",
+          "doc_11",
+          "doc_9",
+          "doc_17",
+          "doc_18",
+          "doc_4"
+        ]
+      },
+      {
+        "query_id": "q_14",
+        "query": "gut bacteria health",
+        "hypothetical_doc": "Gut bacteria are the most common bacteria in the body.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 735.3775501251221,
+        "top_10_retrieved": [
+          "doc_14",
+          "doc_8",
+          "doc_1",
+          "doc_15",
+          "doc_12",
+          "doc_11",
+          "doc_17",
+          "doc_5",
+          "doc_16",
+          "doc_9"
+        ]
+      },
+      {
+        "query_id": "q_15",
+        "query": "cryptocurrency technology",
+        "hypothetical_doc": "Cryptocurrency is a technology that uses the power of the Internet to make money.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 1179.2449951171875,
+        "top_10_retrieved": [
+          "doc_15",
+          "doc_5",
+          "doc_4",
+          "doc_18",
+          "doc_16",
+          "doc_3",
+          "doc_1",
+          "doc_11",
+          "doc_6",
+          "doc_2"
+        ]
+      },
+      {
+        "query_id": "q_16",
+        "query": "brain-inspired computing",
+        "hypothetical_doc": "Brain-inspired computing is the development of brain-based computers.",
+        "mrr": 0.5,
+        "ndcg@10": 0.6309297535714575,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 835.0098133087158,
+        "top_10_retrieved": [
+          "doc_5",
+          "doc_16",
+          "doc_4",
+          "doc_15",
+          "doc_1",
+          "doc_13",
+          "doc_12",
+          "doc_0",
+          "doc_18",
+          "doc_7"
+        ]
+      },
+      {
+        "query_id": "q_17",
+        "query": "Einstein space time",
+        "hypothetical_doc": "Einstein was the first to observe space time.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 672.2168922424316,
+        "top_10_retrieved": [
+          "doc_17",
+          "doc_15",
+          "doc_6",
+          "doc_11",
+          "doc_10",
+          "doc_8",
+          "doc_7",
+          "doc_5",
+          "doc_1",
+          "doc_18"
+        ]
+      },
+      {
+        "query_id": "q_18",
+        "query": "Earth surface movement",
+        "hypothetical_doc": "Earth surface movement is the movement of the Earth's surface.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 852.9105186462402,
+        "top_10_retrieved": [
+          "doc_18",
+          "doc_19",
+          "doc_3",
+          "doc_2",
+          "doc_17",
+          "doc_0",
+          "doc_15",
+          "doc_7",
+          "doc_13",
+          "doc_6"
+        ]
+      },
+      {
+        "query_id": "q_19",
+        "query": "rain evaporation cycle",
+        "hypothetical_doc": "Rain evaporation is the process of evaporating water from the surface of the earth.",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "generation_time_ms": 1321.6850757598877,
+        "top_10_retrieved": [
+          "doc_19",
+          "doc_3",
+          "doc_2",
+          "doc_0",
+          "doc_18",
+          "doc_11",
+          "doc_16",
+          "doc_10",
+          "doc_17",
+          "doc_15"
+        ]
+      }
+    ]
+  },
+  "standard": {
+    "metrics": {
+      "MRR": 0.9166666666666666,
+      "NDCG@10": 0.9380929753571458,
+      "Recall@10": 1.0,
+      "Recall@100": 1.0,
+      "num_queries": 20
+    },
+    "latency": {
+      "avg_embedding_time_ms": 6.758272647857666,
+      "avg_search_time_ms": 0.04169940948486328,
+      "total_avg_latency_ms": 6.799972057342529
+    },
+    "per_query_results": [
+      {
+        "query_id": "q_0",
+        "query": "plants energy sun",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_0",
+          "doc_3",
+          "doc_1",
+          "doc_2",
+          "doc_19",
+          "doc_11",
+          "doc_12",
+          "doc_5",
+          "doc_17",
+          "doc_18"
+        ]
+      },
+      {
+        "query_id": "q_1",
+        "query": "cell energy production",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_1",
+          "doc_0",
+          "doc_13",
+          "doc_3",
+          "doc_5",
+          "doc_12",
+          "doc_7",
+          "doc_2",
+          "doc_19",
+          "doc_11"
+        ]
+      },
+      {
+        "query_id": "q_2",
+        "query": "global warming causes",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_2",
+          "doc_3",
+          "doc_18",
+          "doc_19",
+          "doc_0",
+          "doc_1",
+          "doc_10",
+          "doc_14",
+          "doc_9",
+          "doc_12"
+        ]
+      },
+      {
+        "query_id": "q_3",
+        "query": "how does Earth stay warm",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_3",
+          "doc_2",
+          "doc_18",
+          "doc_19",
+          "doc_0",
+          "doc_9",
+          "doc_1",
+          "doc_16",
+          "doc_10",
+          "doc_11"
+        ]
+      },
+      {
+        "query_id": "q_4",
+        "query": "quantum vs classical computing",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_4",
+          "doc_5",
+          "doc_16",
+          "doc_15",
+          "doc_13",
+          "doc_0",
+          "doc_17",
+          "doc_6",
+          "doc_8",
+          "doc_19"
+        ]
+      },
+      {
+        "query_id": "q_5",
+        "query": "new type of computer",
+        "mrr": 0.3333333333333333,
+        "ndcg@10": 0.5,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_5",
+          "doc_15",
+          "doc_4",
+          "doc_13",
+          "doc_16",
+          "doc_7",
+          "doc_6",
+          "doc_12",
+          "doc_9",
+          "doc_2"
+        ]
+      },
+      {
+        "query_id": "q_6",
+        "query": "European cultural rebirth",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_6",
+          "doc_7",
+          "doc_1",
+          "doc_2",
+          "doc_13",
+          "doc_18",
+          "doc_0",
+          "doc_15",
+          "doc_3",
+          "doc_19"
+        ]
+      },
+      {
+        "query_id": "q_7",
+        "query": "factory machines history",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_7",
+          "doc_5",
+          "doc_1",
+          "doc_15",
+          "doc_4",
+          "doc_16",
+          "doc_12",
+          "doc_6",
+          "doc_9",
+          "doc_2"
+        ]
+      },
+      {
+        "query_id": "q_8",
+        "query": "bacteria medicine",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_8",
+          "doc_14",
+          "doc_12",
+          "doc_15",
+          "doc_9",
+          "doc_16",
+          "doc_5",
+          "doc_1",
+          "doc_17",
+          "doc_0"
+        ]
+      },
+      {
+        "query_id": "q_9",
+        "query": "disease prevention injection",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_9",
+          "doc_8",
+          "doc_12",
+          "doc_14",
+          "doc_3",
+          "doc_10",
+          "doc_7",
+          "doc_4",
+          "doc_15",
+          "doc_16"
+        ]
+      },
+      {
+        "query_id": "q_10",
+        "query": "space gravity escape",
+        "mrr": 0.5,
+        "ndcg@10": 0.6309297535714575,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_17",
+          "doc_10",
+          "doc_11",
+          "doc_3",
+          "doc_18",
+          "doc_14",
+          "doc_19",
+          "doc_0",
+          "doc_6",
+          "doc_1"
+        ]
+      },
+      {
+        "query_id": "q_11",
+        "query": "invisible universe matter",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_11",
+          "doc_10",
+          "doc_17",
+          "doc_15",
+          "doc_4",
+          "doc_14",
+          "doc_0",
+          "doc_18",
+          "doc_3",
+          "doc_1"
+        ]
+      },
+      {
+        "query_id": "q_12",
+        "query": "DNA editing tool",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_12",
+          "doc_1",
+          "doc_8",
+          "doc_0",
+          "doc_13",
+          "doc_9",
+          "doc_15",
+          "doc_14",
+          "doc_2",
+          "doc_3"
+        ]
+      },
+      {
+        "query_id": "q_13",
+        "query": "cells that can become anything",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_13",
+          "doc_1",
+          "doc_0",
+          "doc_14",
+          "doc_9",
+          "doc_12",
+          "doc_5",
+          "doc_16",
+          "doc_10",
+          "doc_4"
+        ]
+      },
+      {
+        "query_id": "q_14",
+        "query": "gut bacteria health",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_14",
+          "doc_8",
+          "doc_12",
+          "doc_15",
+          "doc_1",
+          "doc_9",
+          "doc_11",
+          "doc_17",
+          "doc_5",
+          "doc_16"
+        ]
+      },
+      {
+        "query_id": "q_15",
+        "query": "cryptocurrency technology",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_15",
+          "doc_5",
+          "doc_4",
+          "doc_8",
+          "doc_18",
+          "doc_7",
+          "doc_16",
+          "doc_6",
+          "doc_12",
+          "doc_1"
+        ]
+      },
+      {
+        "query_id": "q_16",
+        "query": "brain-inspired computing",
+        "mrr": 0.5,
+        "ndcg@10": 0.6309297535714575,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_5",
+          "doc_16",
+          "doc_4",
+          "doc_1",
+          "doc_15",
+          "doc_0",
+          "doc_19",
+          "doc_18",
+          "doc_7",
+          "doc_12"
+        ]
+      },
+      {
+        "query_id": "q_17",
+        "query": "Einstein space time",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_17",
+          "doc_10",
+          "doc_11",
+          "doc_5",
+          "doc_15",
+          "doc_18",
+          "doc_16",
+          "doc_7",
+          "doc_14",
+          "doc_4"
+        ]
+      },
+      {
+        "query_id": "q_18",
+        "query": "Earth surface movement",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_18",
+          "doc_19",
+          "doc_3",
+          "doc_2",
+          "doc_17",
+          "doc_7",
+          "doc_0",
+          "doc_16",
+          "doc_5",
+          "doc_15"
+        ]
+      },
+      {
+        "query_id": "q_19",
+        "query": "rain evaporation cycle",
+        "mrr": 1.0,
+        "ndcg@10": 1.0,
+        "recall@10": 1.0,
+        "recall@100": 1.0,
+        "top_10_retrieved": [
+          "doc_19",
+          "doc_3",
+          "doc_2",
+          "doc_0",
+          "doc_16",
+          "doc_18",
+          "doc_11",
+          "doc_6",
+          "doc_10",
+          "doc_17"
+        ]
+      }
+    ]
+  },
+  "analysis": {
+    "summary": {
+      "hyde_wins": 1,
+      "standard_wins": 3,
+      "ties": 16,
+      "total_queries": 20,
+      "hyde_win_rate": 0.05,
+      "avg_mrr_improvement_when_hyde_wins": 0.16666666666666669,
+      "avg_mrr_degradation_when_hyde_loses": -0.5
+    },
+    "hyde_wins_examples": [
+      {
+        "query_id": "q_5",
+        "query": "new type of computer",
+        "hyde_mrr": 0.5,
+        "standard_mrr": 0.3333333333333333,
+        "mrr_diff": 0.16666666666666669,
+        "hypothetical_doc": "The first computer was a computer that was designed for the use of a computer."
+      }
+    ],
+    "standard_wins_examples": [
+      {
+        "query_id": "q_13",
+        "query": "cells that can become anything",
+        "hyde_mrr": 0.3333333333333333,
+        "standard_mrr": 1.0,
+        "mrr_diff": -0.6666666666666667,
+        "hypothetical_doc": "Cells that can become anything can be a form of energy."
+      },
+      {
+        "query_id": "q_8",
+        "query": "bacteria medicine",
+        "hyde_mrr": 0.5,
+        "standard_mrr": 1.0,
+        "mrr_diff": -0.5,
+        "hypothetical_doc": "Bacteria is a disease that causes a rash. Bacteria is a disease that causes a rash."
+      },
+      {
+        "query_id": "q_10",
+        "query": "space gravity escape",
+        "hyde_mrr": 0.16666666666666666,
+        "standard_mrr": 0.5,
+        "mrr_diff": -0.33333333333333337,
+        "hypothetical_doc": "Space gravity is the force of gravity that causes the Earth to move in a forward motion."
+      }
+    ],
+    "analysis_notes": [
+      "Standard retrieval outperforms HyDE, with HyDE only winning on 5.0% of queries. This may indicate that the LLM is generating hypothetical documents that diverge from the actual relevant documents in the corpus.",
+      "When HyDE wins, queries have an average length of 4.0 words.",
+      "When standard retrieval wins, queries have an average length of 3.3 words.",
+      "HyDE tends to help more with short, keyword-style queries where the LLM can expand the query into a more descriptive passage. It may hurt performance when queries are already well-formed or when the LLM hallucinates incorrect information."
+    ]
+  }
+}
