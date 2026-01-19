@@ -1,5 +1,4 @@
 import pyvene as pv
-import json
 
 
 class ReftConfig(pv.IntervenableConfig):
