@@ -13,7 +13,7 @@ class ReftType(str, enum.Enum):
 
     LOREFT = "LOREFT"
     NOREFT = "NOREFT"
-    NLOREFT = NOREFT  # Backwards-compatible alias for typo
+    NLOREFT = NOREFT
     # Add yours here!
 
 
