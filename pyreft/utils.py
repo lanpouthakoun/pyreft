@@ -8,10 +8,12 @@ class ReftType(str, enum.Enum):
 
     Supported REFT types:
     - LOREFT
+    - NOREFT
     """
 
     LOREFT = "LOREFT"
-    NLOREFT = "NOREFT"
+    NOREFT = "NOREFT"
+    NLOREFT = NOREFT  # Backwards-compatible alias for typo
     # Add yours here!
 
 
