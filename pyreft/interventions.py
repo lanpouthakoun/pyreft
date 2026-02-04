@@ -78,7 +78,8 @@ class LoreftIntervention(
             self.learned_source.weight.device)
         self.rotate_layer = torch.nn.utils.parametrizations.orthogonal(rotate_layer)
         self.rotate_layer.parametrizations.weight[0].base[:,:overload_w_width] = overload_w
-        assert torch.allclose(self.rotate_layer.weight.data, overload_w.data) == True # we must match!
+        # Verify weights match after loading
+        assert torch.allclose(self.rotate_layer.weight.data, overload_w.data)
         
         return
 
