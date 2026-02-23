@@ -207,7 +207,7 @@ export const useJourneyStore = create<JourneyStore>((set, get) => ({
     const nodes: Node<StageNodeData>[] = journey.stages.map((stage) => ({
       id: stage.id,
       type: 'stageNode',
-      position: (stage as unknown as { position: { x: number; y: number } }).position ?? { x: 0, y: 0 },
+      position: stage.position ?? { x: 0, y: 0 },
       data: {
         label: stage.name,
         instruction: stage.instruction,

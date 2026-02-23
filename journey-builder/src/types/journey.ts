@@ -13,6 +13,7 @@ export interface JourneyStage {
   instruction: string;
   detectionConfig: DetectionConfig;
   stageType: StageType;
+  position?: { x: number; y: number };
 }
 
 export interface JourneyTransition {
